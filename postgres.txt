@@ -1,0 +1,102 @@
+-- Creating tables
+
+DROP TABLE platform CASCADE;
+DROP TABLE genre CASCADE;
+DROP TABLE publisher CASCADE;
+DROP TABLE developer CASCADE;
+DROP TABLE rating CASCADE;
+DROP TABLE videogames CASCADE;
+
+CREATE TABLE platform (
+    id SERIAL,
+    name VARCHAR(128) UNIQUE,
+    PRIMARY KEY(id)
+);
+
+CREATE TABLE genre (
+    id SERIAL,
+    name VARCHAR(128) UNIQUE,
+    PRIMARY KEY(id)
+);
+
+CREATE TABLE publisher (
+    id SERIAL,
+    name VARCHAR(128) UNIQUE,
+    PRIMARY KEY(id)
+);
+
+CREATE TABLE developer (
+    id SERIAL,
+    name VARCHAR(128) UNIQUE,
+    PRIMARY KEY(id)
+);
+
+CREATE TABLE rating (
+    id SERIAL,
+    name VARCHAR(128) UNIQUE,
+    PRIMARY KEY(id)
+);
+
+CREATE TABLE videogames (
+    id SERIAL,
+    name TEXT,
+    platform TEXT,
+    platform_id INTEGER REFERENCES platform(id) ON DELETE CASCADE,
+    year_of_release INTEGER,
+    genre TEXT,
+    genre_id INTEGER REFERENCES genre(id) ON DELETE CASCADE,
+    publisher TEXT,
+    publisher_id INTEGER REFERENCES publisher(id) ON DELETE CASCADE,
+    na_sales REAL,
+    eu_sales REAL,
+    jp_sales REAL,
+    other_sales REAL,
+    global_sales REAL,
+    critic_score REAL,
+    critic_count INTEGER,
+    user_score REAL,
+    user_count INTEGER,
+    developer TEXT,
+    developer_id INTEGER REFERENCES developer(id) ON DELETE CASCADE,
+    rating TEXT,
+    rating_id INTEGER REFERENCES rating(id) ON DELETE CASCADE,
+    PRIMARY KEY (id)
+);
+
+-- Importing Video_Games_Sales_as_at_22_Dec_2016 to videogames table
+\copy videogames(name,platform,year_of_release,genre,publisher,na_sales,eu_sales,jp_sales,other_sales,global_sales,critic_score,critic_count,user_score,user_count,developer,rating) FROM 'Video_Games_Sales_as_at_22_Dec_2016.csv' WITH DELIMITER ',' CSV HEADER;
+
+-- Updating tables to optimize database
+INSERT INTO platform (name) SELECT DISTINCT platform FROM videogames ORDER BY platform;
+UPDATE videogames SET platform_id = (SELECT platform.id FROM platform WHERE videogames.platform = platform.name);
+
+INSERT INTO genre (name) SELECT DISTINCT genre FROM videogames ORDER BY genre;
+UPDATE videogames SET genre_id = (SELECT genre.id FROM genre WHERE videogames.genre = genre.name);
+
+INSERT INTO publisher (name) SELECT DISTINCT publisher FROM videogames ORDER BY publisher;
+UPDATE videogames SET publisher_id = (SELECT publisher.id FROM publisher WHERE videogames.publisher = publisher.name);
+
+INSERT INTO developer (name) SELECT DISTINCT developer FROM videogames ORDER BY developer;
+UPDATE videogames SET developer_id = (SELECT developer.id FROM developer WHERE videogames.developer = developer.name);
+
+INSERT INTO rating (name) SELECT DISTINCT rating FROM videogames ORDER BY rating;
+UPDATE videogames SET rating_id = (SELECT rating.id FROM rating WHERE videogames.rating = rating.name);
+
+
+-- We are now done with these text fields
+ALTER TABLE videogames DROP COLUMN platform;
+ALTER TABLE videogames DROP COLUMN genre;
+ALTER TABLE videogames DROP COLUMN publisher;
+ALTER TABLE videogames DROP COLUMN developer;
+ALTER TABLE videogames DROP COLUMN rating;
+
+-- Query of the most important columns
+SELECT videogames.name, platform.name AS platform, videogames.year_of_release, genre.name AS gerne, 
+publisher.name AS publisher, videogames.global_sales, developer.name AS developer, rating.name AS rating
+FROM videogames
+JOIN platform ON videogames.platform_id = platform.id
+JOIN genre ON videogames.genre_id = genre.id
+JOIN publisher ON videogames.publisher_id = publisher.id
+LEFT JOIN developer ON videogames.developer_id = developer.id
+LEFT JOIN rating ON videogames.rating_id = rating.id
+ORDER BY global_sales DESC LIMIT 30;
