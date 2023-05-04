@@ -8,15 +8,15 @@ and all cells with 'tbd' from *User_Score column*.
 
 In postgres.txt you can see the construction of the postgres' database.
 
-From line 3 to line 64 of postgres.txt we are creating the database's tables. The main table is *videogames* and the rest of the tables are for optimize our database.
+From line 3 to line 64 of postgres.txt we're creating the database's tables. The main table is *videogames* and the rest of the tables are for optimize our database.
 
-In line 67 we are importing Video_Games_Sales_as_at_22_Dec_2016 to *videogames* table.
+In line 67 we're importing Video_Games_Sales_as_at_22_Dec_2016 to *videogames* table.
 
-From line 70 to 83 we are updating secondary tables.
+From line 70 to 83 we're updating secondary tables.
 
-From line 87 to 91 we are dropping updated columns from *videogames* table.
+From line 87 to 91 we're dropping updated columns from *videogames* table.
 
-Finally, from line 94 we are crossing our tables to show our final result.
+Finally, from line 94 we're crossing our tables to show our final result.
 (First 10 rows of 16719)
 
  name                           | platform | year_of_release | gerne        | publisher | global_sales | developer | rating |
